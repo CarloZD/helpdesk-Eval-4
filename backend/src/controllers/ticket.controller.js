@@ -42,7 +42,15 @@ exports.listarTickets = async (req, res) => {
 
     try {
 
+        const filter = {};
+        if (req.usuario.rol === "CLIENTE") {
+            filter.cliente_id = req.usuario.id;
+        } else if (req.usuario.rol === "SOPORTE") {
+            filter.soporte_id = req.usuario.id;
+        }
+
         const tickets = await Ticket.findAll({
+            where: filter,
             include: [
                 {
                     model: Usuario,
@@ -100,6 +108,18 @@ exports.obtenerTicketPorId = async (req, res) => {
             });
         }
 
+        // Validar permisos según el rol
+        if (req.usuario.rol === "CLIENTE" && ticket.cliente_id !== req.usuario.id) {
+            return res.status(403).json({
+                mensaje: "No tiene permisos para ver este ticket."
+            });
+        }
+        if (req.usuario.rol === "SOPORTE" && ticket.soporte_id !== req.usuario.id) {
+            return res.status(403).json({
+                mensaje: "No tiene permisos para ver este ticket."
+            });
+        }
+
         res.status(200).json(ticket);
 
     } catch (error) {
@@ -141,6 +161,13 @@ exports.cambiarEstado = async (req, res) => {
         if (!ticket) {
             return res.status(404).json({
                 mensaje: "Ticket no encontrado."
+            });
+        }
+
+        // Validar permisos: el soporte solo puede cambiar estado de sus tickets asignados
+        if (req.usuario.rol === "SOPORTE" && ticket.soporte_id !== req.usuario.id) {
+            return res.status(403).json({
+                mensaje: "No tiene permisos para modificar este ticket."
             });
         }
 
@@ -188,6 +215,18 @@ exports.agregarComentario = async (req, res) => {
             });
         }
 
+        // Validar permisos según el rol
+        if (req.usuario.rol === "CLIENTE" && ticket.cliente_id !== req.usuario.id) {
+            return res.status(403).json({
+                mensaje: "No tiene permisos para comentar en este ticket."
+            });
+        }
+        if (req.usuario.rol === "SOPORTE" && ticket.soporte_id !== req.usuario.id) {
+            return res.status(403).json({
+                mensaje: "No tiene permisos para comentar en este ticket."
+            });
+        }
+
         const historial = await HistorialTicket.create({
             comentario,
             ticket_id: ticket.id,
@@ -224,6 +263,18 @@ exports.obtenerHistorial = async (req, res) => {
         if (!ticket) {
             return res.status(404).json({
                 mensaje: "Ticket no encontrado."
+            });
+        }
+
+        // Validar permisos según el rol
+        if (req.usuario.rol === "CLIENTE" && ticket.cliente_id !== req.usuario.id) {
+            return res.status(403).json({
+                mensaje: "No tiene permisos para ver el historial de este ticket."
+            });
+        }
+        if (req.usuario.rol === "SOPORTE" && ticket.soporte_id !== req.usuario.id) {
+            return res.status(403).json({
+                mensaje: "No tiene permisos para ver el historial de este ticket."
             });
         }
 
@@ -339,6 +390,11 @@ exports.eliminarTicket = async (req, res) => {
             });
         }
 
+        // Eliminar historial relacionado primero (evita error de FK en SQLite)
+        await HistorialTicket.destroy({
+            where: { ticket_id: ticket.id }
+        });
+
         await ticket.destroy();
 
         res.json({
@@ -355,4 +411,4 @@ exports.eliminarTicket = async (req, res) => {
 
     }
 
-};
+};

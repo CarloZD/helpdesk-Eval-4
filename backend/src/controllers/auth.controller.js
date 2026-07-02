@@ -17,6 +17,13 @@ exports.register = async (req, res) => {
             });
         }
 
+        const rolesValidos = ["ADMIN", "SOPORTE", "CLIENTE"];
+        if (!rolesValidos.includes(rol)) {
+            return res.status(400).json({
+                mensaje: "El rol proporcionado no es válido."
+            });
+        }
+
         const existeUsuario = await Usuario.findOne({
             where: { correo }
         });
