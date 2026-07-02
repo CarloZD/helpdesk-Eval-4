@@ -1,4 +1,4 @@
-const { Ticket, Usuario } = require("../models");
+const { Ticket, Usuario, HistorialTicket } = require("../models");
 
 // =====================
 // Crear Ticket
@@ -152,6 +152,106 @@ exports.cambiarEstado = async (req, res) => {
             mensaje: "Estado actualizado correctamente.",
             ticket
         });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            mensaje: "Error interno del servidor."
+        });
+
+    }
+
+};
+// =====================
+// Agregar Comentario
+// =====================
+exports.agregarComentario = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+        const { comentario } = req.body;
+
+        if (!comentario) {
+            return res.status(400).json({
+                mensaje: "El comentario es obligatorio."
+            });
+        }
+
+        const ticket = await Ticket.findByPk(id);
+
+        if (!ticket) {
+            return res.status(404).json({
+                mensaje: "Ticket no encontrado."
+            });
+        }
+
+        const historial = await HistorialTicket.create({
+            comentario,
+            ticket_id: ticket.id,
+            usuario_id: req.usuario.id
+        });
+
+        res.status(201).json({
+            mensaje: "Comentario agregado correctamente.",
+            historial
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            mensaje: "Error interno del servidor."
+        });
+
+    }
+
+};
+// =====================
+// Listar Historial
+// =====================
+exports.obtenerHistorial = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const ticket = await Ticket.findByPk(id);
+
+        if (!ticket) {
+            return res.status(404).json({
+                mensaje: "Ticket no encontrado."
+            });
+        }
+
+        const historial = await HistorialTicket.findAll({
+
+            where: {
+                ticket_id: id
+            },
+
+            include: [
+                {
+                    model: Usuario,
+                    attributes: [
+                        "id",
+                        "nombre",
+                        "correo",
+                        "rol"
+                    ]
+                }
+            ],
+
+            order: [
+                ["createdAt", "ASC"]
+            ]
+
+        });
+
+        res.json(historial);
 
     } catch (error) {
 

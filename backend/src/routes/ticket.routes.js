@@ -35,4 +35,15 @@ router.put(
     ticketController.cambiarEstado
 );
 
+router.post(
+    "/:id/comentarios",
+    verificarToken,
+    ticketController.agregarComentario
+);
+
+router.get(
+    "/:id/comentarios",
+    verificarToken,
+    ticketController.obtenerHistorial
+);
 module.exports = router;
