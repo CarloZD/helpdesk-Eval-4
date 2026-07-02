@@ -264,3 +264,61 @@ exports.obtenerHistorial = async (req, res) => {
     }
 
 };
+// =====================
+// Asignar Soporte
+// =====================
+exports.asignarSoporte = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+        const { soporte_id } = req.body;
+
+        const ticket = await Ticket.findByPk(id);
+
+        if (!ticket) {
+            return res.status(404).json({
+                mensaje: "Ticket no encontrado."
+            });
+        }
+
+        const soporte = await Usuario.findByPk(soporte_id);
+
+        if (!soporte) {
+            return res.status(404).json({
+                mensaje: "Usuario soporte no encontrado."
+            });
+        }
+
+        if (soporte.rol !== "SOPORTE") {
+            return res.status(400).json({
+                mensaje: "El usuario debe tener rol SOPORTE."
+            });
+        }
+
+        ticket.soporte_id = soporte.id;
+
+        await ticket.save();
+
+        await HistorialTicket.create({
+            comentario: `Ticket asignado a ${soporte.nombre}`,
+            ticket_id: ticket.id,
+            usuario_id: req.usuario.id
+        });
+
+        res.json({
+            mensaje: "Soporte asignado correctamente.",
+            ticket
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            mensaje: "Error interno del servidor."
+        });
+
+    }
+
+};

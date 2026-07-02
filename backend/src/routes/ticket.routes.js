@@ -46,4 +46,11 @@ router.get(
     verificarToken,
     ticketController.obtenerHistorial
 );
+
+router.put(
+    "/:id/asignar",
+    verificarToken,
+    verificarRol("ADMIN"),
+    ticketController.asignarSoporte
+);
 module.exports = router;
