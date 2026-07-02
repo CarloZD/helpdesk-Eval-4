@@ -12,7 +12,7 @@ async function conectarDB() {
         await sequelize.authenticate();
         console.log("✅ Base de datos SQLite conectada.");
     } catch (error) {
-        console.error("❌ Error:", error.message);
+        console.error("❌ Error al conectar la base de datos:", error.message);
     }
 }
 

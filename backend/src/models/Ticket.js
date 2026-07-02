@@ -14,6 +14,15 @@ const Ticket = sequelize.define("Ticket", {
     descripcion: {
         type: DataTypes.TEXT,
         allowNull: false
+    },
+    estado: {
+        type: DataTypes.ENUM(
+            "PENDIENTE",
+            "EN_PROCESO",
+            "RESUELTO",
+            "CERRADO"
+        ),
+        defaultValue: "PENDIENTE"
     }
 });
 
