@@ -5,6 +5,8 @@ const ticketController = require("../controllers/ticket.controller");
 
 const verificarToken = require("../middleware/auth.middleware");
 
+const verificarRol = require("../middleware/role.middleware");
+
 // Crear ticket
 router.post(
     "/",
@@ -24,6 +26,13 @@ router.get(
     "/:id",
     verificarToken,
     ticketController.obtenerTicketPorId
+);
+
+router.put(
+    "/:id/estado",
+    verificarToken,
+    verificarRol("ADMIN", "SOPORTE"),
+    ticketController.cambiarEstado
 );
 
 module.exports = router;

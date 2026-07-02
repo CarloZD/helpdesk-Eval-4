@@ -113,3 +113,54 @@ exports.obtenerTicketPorId = async (req, res) => {
     }
 
 };
+// =====================
+// Cambiar Estado
+// =====================
+exports.cambiarEstado = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+        const { estado } = req.body;
+
+        const estadosValidos = [
+            "PENDIENTE",
+            "EN_PROCESO",
+            "RESUELTO",
+            "CERRADO"
+        ];
+
+        if (!estadosValidos.includes(estado)) {
+            return res.status(400).json({
+                mensaje: "Estado inválido."
+            });
+        }
+
+        const ticket = await Ticket.findByPk(id);
+
+        if (!ticket) {
+            return res.status(404).json({
+                mensaje: "Ticket no encontrado."
+            });
+        }
+
+        ticket.estado = estado;
+
+        await ticket.save();
+
+        res.json({
+            mensaje: "Estado actualizado correctamente.",
+            ticket
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            mensaje: "Error interno del servidor."
+        });
+
+    }
+
+};
