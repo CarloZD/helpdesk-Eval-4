@@ -19,4 +19,11 @@ router.get(
     ticketController.listarTickets
 );
 
+// Obtener ticket por ID
+router.get(
+    "/:id",
+    verificarToken,
+    ticketController.obtenerTicketPorId
+);
+
 module.exports = router;

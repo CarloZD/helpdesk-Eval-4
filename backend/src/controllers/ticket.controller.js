@@ -70,3 +70,46 @@ exports.listarTickets = async (req, res) => {
     }
 
 };
+// =====================
+// Obtener Ticket por ID
+// =====================
+exports.obtenerTicketPorId = async (req, res) => {
+
+    try {
+
+        const { id } = req.params;
+
+        const ticket = await Ticket.findByPk(id, {
+            include: [
+                {
+                    model: Usuario,
+                    as: "cliente",
+                    attributes: ["id", "nombre", "correo"]
+                },
+                {
+                    model: Usuario,
+                    as: "soporte",
+                    attributes: ["id", "nombre", "correo"]
+                }
+            ]
+        });
+
+        if (!ticket) {
+            return res.status(404).json({
+                mensaje: "Ticket no encontrado."
+            });
+        }
+
+        res.status(200).json(ticket);
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            mensaje: "Error interno del servidor."
+        });
+
+    }
+
+};
