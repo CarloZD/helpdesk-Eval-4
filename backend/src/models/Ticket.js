@@ -7,14 +7,17 @@ const Ticket = sequelize.define("Ticket", {
         autoIncrement: true,
         primaryKey: true
     },
+
     titulo: {
         type: DataTypes.STRING,
         allowNull: false
     },
+
     descripcion: {
         type: DataTypes.TEXT,
         allowNull: false
     },
+
     estado: {
         type: DataTypes.ENUM(
             "PENDIENTE",
