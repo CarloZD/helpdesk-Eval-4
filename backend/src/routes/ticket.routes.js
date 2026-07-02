@@ -53,4 +53,12 @@ router.put(
     verificarRol("ADMIN"),
     ticketController.asignarSoporte
 );
+
+router.delete(
+    "/:id",
+    verificarToken,
+    verificarRol("ADMIN"),
+    ticketController.eliminarTicket
+);
+
 module.exports = router;

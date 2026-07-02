@@ -322,3 +322,37 @@ exports.asignarSoporte = async (req, res) => {
     }
 
 };
+// =====================
+// Eliminar Ticket
+// =====================
+exports.eliminarTicket = async (req, res) => {
+
+    try {
+
+        const ticket = await Ticket.findByPk(
+            req.params.id
+        );
+
+        if (!ticket) {
+            return res.status(404).json({
+                mensaje: "Ticket no encontrado."
+            });
+        }
+
+        await ticket.destroy();
+
+        res.json({
+            mensaje: "Ticket eliminado correctamente."
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            mensaje: "Error interno del servidor."
+        });
+
+    }
+
+};
